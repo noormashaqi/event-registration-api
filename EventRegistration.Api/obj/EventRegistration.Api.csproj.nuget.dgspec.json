@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Sanasys\\event-registration-api\\EventRegistration.Api\\EventRegistration.Api.csproj": {}
+    "C:\\Users\\Sanasys\\OneDrive\\Documents\\GitHub\\event-registration-api\\EventRegistration.Api\\EventRegistration.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Sanasys\\event-registration-api\\EventRegistration.Api\\EventRegistration.Api.csproj": {
+    "C:\\Users\\Sanasys\\OneDrive\\Documents\\GitHub\\event-registration-api\\EventRegistration.Api\\EventRegistration.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Sanasys\\event-registration-api\\EventRegistration.Api\\EventRegistration.Api.csproj",
+        "projectUniqueName": "C:\\Users\\Sanasys\\OneDrive\\Documents\\GitHub\\event-registration-api\\EventRegistration.Api\\EventRegistration.Api.csproj",
         "projectName": "EventRegistration.Api",
-        "projectPath": "C:\\Users\\Sanasys\\event-registration-api\\EventRegistration.Api\\EventRegistration.Api.csproj",
+        "projectPath": "C:\\Users\\Sanasys\\OneDrive\\Documents\\GitHub\\event-registration-api\\EventRegistration.Api\\EventRegistration.Api.csproj",
         "packagesPath": "C:\\Users\\Sanasys\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Sanasys\\event-registration-api\\EventRegistration.Api\\obj\\",
+        "outputPath": "C:\\Users\\Sanasys\\OneDrive\\Documents\\GitHub\\event-registration-api\\EventRegistration.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Sanasys\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -45,9 +45,29 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.79, )"
+            },
+            "FluentValidation.AspNetCore": {
+              "target": "Package",
+              "version": "[11.3.1, )"
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[12.2.0, )"
+            },
+            "MediatR.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[11.1.0, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[7.0.11, )"
+            },
+            "MySqlConnector": {
+              "target": "Package",
+              "version": "[2.6.1, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
