@@ -26,6 +26,6 @@ public class GetCategoryByIdHandler : IRequestHandler<GetCategoryByIdQuery, Cate
         using var connection = _database.Open();
         var category = await connection.QuerySingleOrDefaultAsync<CategoryDto>(sql, new { request.Id });
 
-        return category ?? throw new NotFoundException("Category", request.Id);
+        return category ?? throw new NotFoundException($"Category with ID {request.Id} not found");
     }
 }

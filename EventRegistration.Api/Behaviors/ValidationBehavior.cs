@@ -31,10 +31,12 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
             .Where(f => f != null)
             .ToList();
 
-      if (failures.Count != 0)
-{
-    throw new ValidationException(failures.Select(f => f.ErrorMessage).ToList());
-}
+        if (failures.Count != 0)
+        {
+            var errorMessages = failures.Select(f => $"{f.PropertyName}: {f.ErrorMessage}").ToList();
+            throw new ValidationException("Validation failed", errorMessages);
+        }
+
         return await next();
     }
 }
