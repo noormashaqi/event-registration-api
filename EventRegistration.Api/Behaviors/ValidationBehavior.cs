@@ -1,11 +1,11 @@
-using EventRegistration.Api.Exceptions;
 using FluentValidation;
 using MediatR;
+using ValidationException = EventRegistration.Api.Exceptions.ValidationException;
 
 namespace EventRegistration.Api.Behaviors;
 
 public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+    where TRequest : IRequest<TResponse>
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
@@ -20,22 +20,21 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
         CancellationToken cancellationToken)
     {
         if (!_validators.Any())
+        {
             return await next();
+        }
 
         var context = new ValidationContext<TRequest>(request);
-        var validationResults = await Task.WhenAll(
-            _validators.Select(v => v.ValidateAsync(context, cancellationToken)));
 
-        var failures = validationResults
-            .SelectMany(r => r.Errors)
-            .Where(f => f is not null)
+        var failures = (await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken))))
+            .SelectMany(result => result.Errors)
+            .Where(f => f != null)
             .ToList();
 
-        if (failures.Count == 0)
-            return await next();
-
-        throw new Exceptions.ValidationException(
-            "Validation failed",
-            failures.Select(f => f.ErrorMessage).ToList());
+      if (failures.Count != 0)
+{
+    throw new ValidationException(failures.Select(f => f.ErrorMessage).ToList());
+}
+        return await next();
     }
 }
