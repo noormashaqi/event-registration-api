@@ -6,3 +6,4 @@ C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistrat
 C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\EventRegistration.Api.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\EventRegistration.Api.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\EventRegistration.Api.sourcelink.json
+C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\rpswa.dswa.cache.json

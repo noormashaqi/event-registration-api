@@ -24,7 +24,7 @@ public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand>
         var exists = await connection.ExecuteScalarAsync<int>(existsSql, new { request.Id });
         if (exists == 0)
         {
-            throw new NotFoundException("Category", request.Id);
+            throw new NotFoundException($"Category with ID {request.Id} not found");
         }
 
        /* const string usedSql = "SELECT COUNT(1) FROM Events WHERE CategoryId = @Id;";

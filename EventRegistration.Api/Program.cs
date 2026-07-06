@@ -1,4 +1,6 @@
 using DotNetEnv;
+using EventRegistration.Api.Features.Categories;
+using EventRegistration.Api.Interfaces;
 using EventRegistration.Api.Behaviors;
 using EventRegistration.Api.Database;
 using EventRegistration.Api.Features.Participants;
@@ -9,6 +11,12 @@ using MediatR;
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+var dbConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+if (!string.IsNullOrWhiteSpace(dbConnectionString))
+{
+    builder.Configuration["ConnectionStrings:Default"] = dbConnectionString;
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -31,8 +39,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    app.UseHttpsRedirection();
+}
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 

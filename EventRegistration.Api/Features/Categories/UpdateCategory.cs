@@ -37,7 +37,7 @@ public class UpdateCategoryHandler : IRequestHandler<UpdateCategoryCommand, Cate
         var exists = await connection.ExecuteScalarAsync<int>(existsSql, new { request.Id });
         if (exists == 0)
         {
-            throw new NotFoundException("Category", request.Id);
+            throw new NotFoundException($"Category with ID {request.Id} not found");
         }
 
         const string duplicateSql = @"

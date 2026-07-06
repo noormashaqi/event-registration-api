@@ -1,7 +1,7 @@
 using MediatR;
 using Dapper;
 using FluentValidation;
-using EventRegistration.Api.Database;
+using EventRegistration.Api.Interfaces;
 using EventRegistration.Api.Exceptions;
 
 namespace EventRegistration.Api.Features.Participants;
