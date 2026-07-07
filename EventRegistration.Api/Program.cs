@@ -30,6 +30,17 @@ builder.Services.AddMediatR(cfg =>
 });
 builder.Services.AddValidatorsFromAssemblyContaining<CreateParticipantValidator>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ReactApp", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -43,6 +54,8 @@ else
 {
     app.UseHttpsRedirection();
 }
+
+app.UseCors("ReactApp");
 
 app.UseAuthorization();
 app.MapControllers();
