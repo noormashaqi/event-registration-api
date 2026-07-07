@@ -1166,19 +1166,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ABOOD\\.nuget\\packages\\": {}
+    "C:\\Users\\USER-Q\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ABOOD\\event-registration-api\\EventRegistration.Api\\EventRegistration.Api.csproj",
+      "projectUniqueName": "C:\\Users\\USER-Q\\OneDrive\\المستندات\\GitHub\\event-registration-api\\EventRegistration.Api\\EventRegistration.Api.csproj",
       "projectName": "EventRegistration.Api",
-      "projectPath": "C:\\Users\\ABOOD\\event-registration-api\\EventRegistration.Api\\EventRegistration.Api.csproj",
-      "packagesPath": "C:\\Users\\ABOOD\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ABOOD\\event-registration-api\\EventRegistration.Api\\obj\\",
+      "projectPath": "C:\\Users\\USER-Q\\OneDrive\\المستندات\\GitHub\\event-registration-api\\EventRegistration.Api\\EventRegistration.Api.csproj",
+      "packagesPath": "C:\\Users\\USER-Q\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\USER-Q\\OneDrive\\المستندات\\GitHub\\event-registration-api\\EventRegistration.Api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\ABOOD\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\USER-Q\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
