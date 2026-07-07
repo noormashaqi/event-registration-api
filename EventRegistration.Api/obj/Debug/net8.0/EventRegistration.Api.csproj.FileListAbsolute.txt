@@ -1,9 +1,0 @@
-C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\EventRegistration.Api.csproj.AssemblyReference.cache
-C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\EventRegistration.Api.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\EventRegistration.Api.AssemblyInfoInputs.cache
-C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\EventRegistration.Api.AssemblyInfo.cs
-C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\EventRegistration.Api.csproj.CoreCompileInputs.cache
-C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\EventRegistration.Api.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\EventRegistration.Api.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\EventRegistration.Api.sourcelink.json
-C:\Users\Sanasys\OneDrive\Documents\GitHub\event-registration-api\EventRegistration.Api\obj\Debug\net8.0\rpswa.dswa.cache.json
