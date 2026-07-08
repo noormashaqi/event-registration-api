@@ -20,7 +20,10 @@ if (!string.IsNullOrWhiteSpace(dbConnectionString))
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
+});
 
 builder.Services.AddSingleton<IEventRegistrationDatabase, EventRegistrationDatabase>();
 builder.Services.AddMediatR(cfg =>
