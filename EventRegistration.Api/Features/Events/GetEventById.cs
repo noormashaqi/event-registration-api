@@ -22,6 +22,10 @@ public class GetEventById
         public string Location { get; set; } = string.Empty;
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }
+        public DateTime RegistrationDeadline { get; set; }
+        public int Capacity { get; set; }
+        public int ActiveRegistrationCount { get; set; }
+        public int AvailableSeats { get; set; }
         public bool IsActive { get; set; }
         public string EventStatus
         {
@@ -45,9 +49,19 @@ public class GetEventById
         {
             using var connection = _db.Open();
             const string sql = @"
-                SELECT e.Id, e.Name, e.Description, e.CategoryId, c.Name AS CategoryName, e.Location, e.StartAt, e.EndAt, e.IsActive
+                SELECT e.Id, e.Name, e.Description, e.CategoryId, c.Name AS CategoryName, e.Location, e.StartAt, e.EndAt,
+                       e.RegistrationDeadline, e.Capacity,
+                       COALESCE(r.ActiveCount, 0) AS ActiveRegistrationCount,
+                       e.Capacity - COALESCE(r.ActiveCount, 0) AS AvailableSeats,
+                       e.IsActive
                 FROM Events e
                 INNER JOIN Categories c ON e.CategoryId = c.Id
+                LEFT JOIN (
+                    SELECT EventId, COUNT(1) AS ActiveCount
+                    FROM Registrations
+                    WHERE Status = 1
+                    GROUP BY EventId
+                ) r ON r.EventId = e.Id
                 WHERE e.Id = @Id";
 
             var result = await connection.QuerySingleOrDefaultAsync<Result>(sql, new { Id = request.Id });

@@ -34,6 +34,9 @@ public class GetEvents
         public string Location { get; set; } = string.Empty;
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }
+        public int Capacity { get; set; }
+        public int ActiveRegistrationCount { get; set; }
+        public int AvailableSeats { get; set; }
         public bool IsActive { get; set; }
         public string EventStatus
         {
@@ -93,9 +96,18 @@ public class GetEvents
             int totalCount = await connection.ExecuteScalarAsync<int>(countBuilder.ToString(), parameters);
 
             sqlBuilder.Append($@"
-                SELECT e.Id, e.Name, e.CategoryId, c.Name AS CategoryName, e.Location, e.StartAt, e.EndAt, e.IsActive
+                SELECT e.Id, e.Name, e.CategoryId, c.Name AS CategoryName, e.Location, e.StartAt, e.EndAt, e.Capacity,
+                       COALESCE(r.ActiveCount, 0) AS ActiveRegistrationCount,
+                       e.Capacity - COALESCE(r.ActiveCount, 0) AS AvailableSeats,
+                       e.IsActive
                 FROM Events e
                 INNER JOIN Categories c ON e.CategoryId = c.Id
+                LEFT JOIN (
+                    SELECT EventId, COUNT(1) AS ActiveCount
+                    FROM Registrations
+                    WHERE Status = 1
+                    GROUP BY EventId
+                ) r ON r.EventId = e.Id
                 {baseWhere}
                 ORDER BY e.StartAt ASC
                 LIMIT @Offset, @Limit");
