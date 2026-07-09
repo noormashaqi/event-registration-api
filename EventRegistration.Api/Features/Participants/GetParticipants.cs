@@ -109,7 +109,7 @@ public class GetParticipantsQueryHandler : IRequestHandler<GetParticipantsQuery,
 
         var items = participants.Select(p => new ParticipantListItem
         {
-            Id = p.Id,
+            Id = (long)(ulong)p.Id,
             FullName = p.FullName,
             Email = p.Email,
             Phone = p.Phone,
