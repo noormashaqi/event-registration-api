@@ -27,12 +27,12 @@ public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand>
             throw new NotFoundException($"Category with ID {request.Id} not found");
         }
 
-       /* const string usedSql = "SELECT COUNT(1) FROM Events WHERE CategoryId = @Id;";
+        const string usedSql = "SELECT COUNT(1) FROM Events WHERE CategoryId = @Id;";
         var used = await connection.ExecuteScalarAsync<int>(usedSql, new { request.Id });
         if (used > 0)
         {
-            throw new BusinessException("This category is used by one or more events and cannot be deleted.");
-        }*/ 
+            throw new CategoryInUseException();
+        }
 
         const string deleteSql = "DELETE FROM Categories WHERE Id = @Id;";
         await connection.ExecuteAsync(deleteSql, new { request.Id });

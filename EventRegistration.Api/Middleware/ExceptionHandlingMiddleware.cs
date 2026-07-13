@@ -20,10 +20,26 @@ public class ExceptionHandlingMiddleware
         {
             await _next(context);
         }
+        catch (ValidationException ex)
+        {
+            _logger.LogWarning(ex, "Validation exception: {Message}", ex.Message);
+            await WriteErrorResponse(context, StatusCodes.Status400BadRequest,
+                "One or more validation errors occurred.", ex.Errors?.ToList());
+        }
+        catch (NotFoundException ex)
+        {
+            _logger.LogWarning(ex, "Not found exception: {Message}", ex.Message);
+            await WriteErrorResponse(context, StatusCodes.Status404NotFound, ex.Message);
+        }
+        catch (DuplicateResourceException ex)
+        {
+            _logger.LogWarning(ex, "Duplicate resource exception: {Message}", ex.Message);
+            await WriteErrorResponse(context, StatusCodes.Status409Conflict, ex.Message);
+        }
         catch (BusinessException ex)
         {
             _logger.LogWarning(ex, "Business exception: {Message}", ex.Message);
-            await WriteErrorResponse(context, ex.StatusCode, ex.Message, ex is ValidationException validationEx ? validationEx.Errors : null);
+            await WriteErrorResponse(context, StatusCodes.Status409Conflict, ex.Message);
         }
         catch (Exception ex)
         {
@@ -37,9 +53,13 @@ public class ExceptionHandlingMiddleware
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";
 
-        var payload = new Dictionary<string, object> { ["message"] = message };
-        if (errors is { Count: > 0 })
-            payload["errors"] = errors;
+        var payload = new
+        {
+            success = false,
+            timestamp = DateTime.UtcNow,
+            message,
+            errors = errors ?? new List<string>()
+        };
 
         await context.Response.WriteAsync(JsonSerializer.Serialize(payload));
     }

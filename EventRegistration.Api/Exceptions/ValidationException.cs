@@ -1,12 +1,12 @@
 namespace EventRegistration.Api.Exceptions;
 
-public class ValidationException : BusinessException
+public class ValidationException : Exception
 {
-    public List<string> Errors { get; }
+    public IReadOnlyList<string> Errors { get; }
 
-    public ValidationException(string message, List<string>? errors = null)
-        : base(message, StatusCodes.Status400BadRequest)
+    public ValidationException(IEnumerable<string> errors)
+        : base("One or more validation errors occurred.")
     {
-        Errors = errors ?? new List<string>();
+        Errors = errors.ToList();
     }
 }
