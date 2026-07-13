@@ -47,7 +47,7 @@ public class UpdateEvent
 
             const string checkSql = @"
                 SELECT Capacity,
-                       (SELECT COUNT(*) FROM Registrations r WHERE r.EventId = e.Id AND r.Status = 'Active') AS ActiveRegistrations
+                       (SELECT COUNT(*) FROM Registrations r WHERE r.EventId = e.Id AND r.Status = 1) AS ActiveRegistrations
                 FROM Events e WHERE e.Id = @Id";
 
             var eventInfo = await connection.QueryFirstOrDefaultAsync<dynamic>(checkSql, new { Id = request.Id });

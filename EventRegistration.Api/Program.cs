@@ -11,69 +11,91 @@ using Serilog;
 
 Env.Load();
 
+// Bootstrap logger: captures anything that happens before the host
+// (and its configuration-driven logger) is fully built.
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
-    .CreateLogger();
+    .CreateBootstrapLogger();
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Host.UseSerilog();
-
-var dbConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
-
-if (!string.IsNullOrWhiteSpace(dbConnectionString))
+try
 {
-    builder.Configuration["ConnectionStrings:Default"] = dbConnectionString;
-}
+    var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+    builder.Host.UseSerilog((context, services, configuration) => configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .WriteTo.Console());
 
-builder.Services.AddEndpointsApiExplorer();
+    var dbConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
 
-builder.Services.AddSwaggerGen(c =>
-{
-    c.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
-});
-
-builder.Services.AddSingleton<IEventRegistrationDatabase, EventRegistrationDatabase>();
-
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssemblyContaining<CreateParticipantCommand>();
-    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
-});
-
-builder.Services.AddValidatorsFromAssemblyContaining<CreateParticipantValidator>();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("ReactApp", policy =>
+    if (!string.IsNullOrWhiteSpace(dbConnectionString))
     {
-        policy
-            .WithOrigins("http://localhost:5173")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        builder.Configuration["ConnectionStrings:Default"] = dbConnectionString;
+    }
+
+    var corsAllowedOrigin = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGIN")
+        ?? "http://localhost:5173";
+
+    builder.Services.AddControllers();
+
+    builder.Services.AddEndpointsApiExplorer();
+
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
     });
-});
 
-var app = builder.Build();
+    builder.Services.AddSingleton<IEventRegistrationDatabase, EventRegistrationDatabase>();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+    builder.Services.AddMediatR(cfg =>
+    {
+        cfg.RegisterServicesFromAssemblyContaining<CreateParticipantCommand>();
+        cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+    });
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    builder.Services.AddValidatorsFromAssemblyContaining<CreateParticipantValidator>();
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("ReactApp", policy =>
+        {
+            policy
+                .WithOrigins(corsAllowedOrigin)
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+    });
+
+    var app = builder.Build();
+
+    app.UseSerilogRequestLogging();
+
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+    else
+    {
+        app.UseHttpsRedirection();
+    }
+
+    app.UseCors("ReactApp");
+
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.Run();
 }
-else
+catch (Exception ex)
 {
-    app.UseHttpsRedirection();
+    Log.Fatal(ex, "Application terminated unexpectedly");
 }
-
-app.UseCors("ReactApp");
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+finally
+{
+    Log.CloseAndFlush();
+}

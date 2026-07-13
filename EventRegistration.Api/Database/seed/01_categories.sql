@@ -1,4 +1,14 @@
-INSERT INTO Categories (Name, Description, IsActive, CreatedAt)
+-- ============================================================
+-- 01_categories.sql
+--
+-- Seed data for the Categories feature.
+-- Run after migrations/001_create_categories.sql has been applied.
+--
+-- Idempotent: INSERT IGNORE skips rows that already exist
+-- (Categories.Name is UNIQUE).
+-- ============================================================
+
+INSERT IGNORE INTO `Categories` (`Name`, `Description`, `IsActive`, `CreatedAt`)
 VALUES
 ('Technology', 'Technology events and conferences', 1, UTC_TIMESTAMP()),
 ('Business', 'Business and entrepreneurship events', 1, UTC_TIMESTAMP()),

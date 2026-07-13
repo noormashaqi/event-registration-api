@@ -1,6 +1,7 @@
 using MediatR;
 using Dapper;
 using System.Data;
+using EventRegistration.Api.Exceptions;
 using EventRegistration.Api.Interfaces;
 namespace EventRegistration.Api.Features.Registrations;
 
@@ -25,7 +26,7 @@ public class GetEventRegistrationsQueryHandler : IRequestHandler<GetEventRegistr
     public async Task<PaginatedResult<RegistrationListItem>> Handle(GetEventRegistrationsQuery request, CancellationToken cancellationToken)
     {
         if (request.Page < 1 || request.PageSize < 1 || request.PageSize > 100)
-            throw new ValidationException("Invalid pagination parameters");
+            throw new ValidationException(new[] { "Invalid pagination parameters" });
 
         using var connection = _database.Open();
         

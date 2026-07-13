@@ -38,8 +38,16 @@ public class DeleteParticipantHandler : IRequestHandler<DeleteParticipantCommand
         if (participantExists == 0)
             throw new NotFoundException($"Participant with ID {request.ParticipantId} not found");
 
-        // Note: If you build Registrations feature, check for registrations here
-        // For now, allow deletion
+        // Block deletion if the participant has any registration history
+        const string registrationCheckSql = @"
+            SELECT COUNT(*)
+            FROM `Registrations`
+            WHERE ParticipantId = @ParticipantId";
+
+        int registrationCount = await connection.ExecuteScalarAsync<int>(registrationCheckSql, new { ParticipantId = request.ParticipantId });
+
+        if (registrationCount > 0)
+            throw new ParticipantHasRegistrationsException();
 
         // Delete the participant
         const string deleteSql = @"

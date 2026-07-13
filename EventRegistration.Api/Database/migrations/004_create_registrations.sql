@@ -1,8 +1,6 @@
-DROP TABLE IF EXISTS `Registrations`;
-
 CREATE TABLE IF NOT EXISTS `Registrations` (
     `Id`              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `EventId`         INT UNSIGNED NOT NULL,
+    `EventId`         BIGINT UNSIGNED NOT NULL,
     `ParticipantId`   BIGINT UNSIGNED NOT NULL,
     `Status`          TINYINT(1) NOT NULL DEFAULT 1,
     `Notes`           VARCHAR(500) NULL,

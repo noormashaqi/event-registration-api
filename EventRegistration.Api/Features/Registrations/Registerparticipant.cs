@@ -2,6 +2,7 @@ using MediatR;
 using Dapper;
 using FluentValidation;
 using System.Data;
+using EventRegistration.Api.Exceptions;
 using EventRegistration.Api.Interfaces;
 
 namespace EventRegistration.Api.Features.Registrations;

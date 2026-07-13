@@ -5,7 +5,6 @@ using EventRegistration.Api.Features.Registrations;
 namespace EventRegistration.Api.Controllers;
 
 [ApiController]
-[Route("api/events/{eventId}/registrations")]
 public class RegistrationsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -26,7 +25,7 @@ public class RegistrationsController : ControllerBase
     /// <param name="search">Search by participant name, email, or phone</param>
     /// <param name="status">Filter by status (1=Active, 2=Cancelled)</param>
     /// <returns>Paginated list of registrations</returns>
-    [HttpGet]
+    [HttpGet("api/events/{eventId}/registrations")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -56,7 +55,7 @@ public class RegistrationsController : ControllerBase
     /// <param name="eventId">Event ID</param>
     /// <param name="request">Registration data with participant ID and optional notes</param>
     /// <returns>Created registration</returns>
-    [HttpPost]
+    [HttpPost("api/events/{eventId}/registrations")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -75,20 +74,19 @@ public class RegistrationsController : ControllerBase
         var result = await _mediator.Send(command);
         return CreatedAtAction(
             nameof(GetRegistrationById),
-            new { eventId = eventId, registrationId = result.Id },
+            new { registrationId = result.Id },
             result);
     }
 
     /// <summary>
     /// Get a single registration by ID
     /// </summary>
-    /// <param name="eventId">Event ID</param>
     /// <param name="registrationId">Registration ID</param>
     /// <returns>Registration details</returns>
-    [HttpGet("{registrationId}")]
+    [HttpGet("api/registrations/{registrationId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<RegistrationResponse>> GetRegistrationById(long eventId, long registrationId)
+    public async Task<ActionResult<RegistrationResponse>> GetRegistrationById(long registrationId)
     {
         var query = new GetRegistrationByIdQuery { RegistrationId = registrationId };
         var result = await _mediator.Send(query);
@@ -98,14 +96,13 @@ public class RegistrationsController : ControllerBase
     /// <summary>
     /// Cancel an active registration
     /// </summary>
-    /// <param name="eventId">Event ID</param>
     /// <param name="registrationId">Registration ID</param>
     /// <returns>Updated registration</returns>
-    [HttpPatch("{registrationId}/cancel")]
+    [HttpPatch("api/registrations/{registrationId}/cancel")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<RegistrationResponse>> CancelRegistration(long eventId, long registrationId)
+    public async Task<ActionResult<RegistrationResponse>> CancelRegistration(long registrationId)
     {
         var command = new CancelRegistrationCommand { RegistrationId = registrationId };
         var result = await _mediator.Send(command);

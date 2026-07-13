@@ -48,29 +48,3 @@ public class RegistrationResponse
     public DateTime RegisteredAt { get; set; }
     public DateTime? CancelledAt { get; set; }
 }
-
-// Exceptions
-public class ValidationException : Exception
-{
-    public List<string> Errors { get; set; } = new();
-
-    public ValidationException(string message, List<string>? errors = null) : base(message)
-    {
-        if (errors != null) Errors = errors;
-    }
-}
-
-public class NotFoundException : Exception
-{
-    public NotFoundException(string message) : base(message) { }
-}
-
-public class BusinessException : Exception
-{
-    public BusinessException(string message) : base(message) { }
-}
-
-public class DuplicateResourceException : Exception
-{
-    public DuplicateResourceException(string message) : base(message) { }
-}

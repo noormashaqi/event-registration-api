@@ -1,0 +1,34 @@
+# Build output
+**/bin/
+**/obj/
+
+# Visual Studio
+.vs/
+
+# VS Code / Cursor
+.vscode/
+.cursor/
+
+# Logs
+logs/
+*.log
+
+# Environment variables (contains secrets)
+.env
+*.env
+!*.env.example
+
+# Development settings (contains secrets)
+appsettings.Development.json
+appsettings.*.local.json
+
+# User-specific files
+*.user
+*.suo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Rider / JetBrains
+.idea/
