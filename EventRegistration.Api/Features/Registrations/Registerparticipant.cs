@@ -56,7 +56,7 @@ public class RegisterParticipantHandler : IRequestHandler<RegisterParticipantCom
             throw new NotFoundException($"Event with ID {request.EventId} not found");
 
         if (!Convert.ToBoolean(eventData.IsActive))
-            throw new BusinessException("Event is not active");
+            throw new BusinessRuleException("Event is not active");
 
         const string participantCheckSql = @"
             SELECT Id, IsActive
@@ -69,14 +69,14 @@ public class RegisterParticipantHandler : IRequestHandler<RegisterParticipantCom
             throw new NotFoundException($"Participant with ID {request.ParticipantId} not found");
 
         if (!Convert.ToBoolean(participantData.IsActive))
-            throw new BusinessException("Participant is not active");
+            throw new BusinessRuleException("Participant is not active");
 
         var currentTime = DateTime.UtcNow;
         if (currentTime > (DateTime)eventData.RegistrationDeadline)
-            throw new BusinessException("Event registration deadline has passed");
+            throw new BusinessRuleException("Event registration deadline has passed");
 
         if (currentTime >= (DateTime)eventData.StartAt)
-            throw new BusinessException("Event has already started");
+            throw new BusinessRuleException("Event has already started");
 
         const string activeCountSql = @"
             SELECT COUNT(*) 
@@ -87,7 +87,7 @@ public class RegisterParticipantHandler : IRequestHandler<RegisterParticipantCom
         int availableSeats = Convert.ToInt32(eventData.Capacity) - activeRegistrationCount;
 
         if (availableSeats <= 0)
-            throw new BusinessException("Event is full");
+            throw new BusinessRuleException("Event is full");
 
         const string existingRegistrationSql = @"
             SELECT Id, Status
@@ -98,26 +98,33 @@ public class RegisterParticipantHandler : IRequestHandler<RegisterParticipantCom
             existingRegistrationSql,
             new { EventId = request.EventId, ParticipantId = request.ParticipantId });
 
-        if (existingRegistration != null && Convert.ToInt32(existingRegistration.Status) == 1)
-            throw new DuplicateResourceException("Participant is already registered in this event");
-
-        if (existingRegistration != null && Convert.ToInt32(existingRegistration.Status) == 2)
+        if (existingRegistration != null)
         {
-            const string reactivateSql = @"
-                UPDATE `Registrations`
-                SET 
-                    Status = 1,
-                    CancelledAt = NULL,
-                    Notes = @Notes
-                WHERE Id = @RegistrationId";
+            int existingStatus = Convert.ToInt32(existingRegistration.Status);
 
-            await connection.ExecuteAsync(reactivateSql, new
+            if (existingStatus == 1)
+                throw new DuplicateResourceException("Participant is already registered in this event");
+
+            if (existingStatus == 2)
             {
-                RegistrationId = Convert.ToInt64(existingRegistration.Id),
-                Notes = request.Notes?.Trim()
-            });
+                long existingRegistrationId = Convert.ToInt64(existingRegistration.Id);
 
-            return await GetRegistrationDetails(connection, Convert.ToInt64(existingRegistration.Id));
+                const string reactivateSql = @"
+                    UPDATE `Registrations`
+                    SET
+                        Status = 1,
+                        CancelledAt = NULL,
+                        Notes = @Notes
+                    WHERE Id = @RegistrationId";
+
+                await connection.ExecuteAsync(reactivateSql, new
+                {
+                    RegistrationId = existingRegistrationId,
+                    Notes = request.Notes?.Trim()
+                });
+
+                return await GetRegistrationDetails(connection, existingRegistrationId);
+            }
         }
 
         const string insertSql = @"

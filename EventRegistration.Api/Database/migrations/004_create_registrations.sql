@@ -17,6 +17,26 @@ CREATE TABLE IF NOT EXISTS `Registrations` (
     UNIQUE KEY `UQ_Registrations_EventParticipant` (`EventId`, `ParticipantId`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
-CREATE INDEX `IX_Registrations_EventId` ON `Registrations` (`EventId`);
-CREATE INDEX `IX_Registrations_ParticipantId` ON `Registrations` (`ParticipantId`);
-CREATE INDEX `IX_Registrations_Status` ON `Registrations` (`Status`);
+-- CREATE INDEX has no IF NOT EXISTS clause on older MySQL 8.x, so guard
+-- each one manually via information_schema to keep this migration
+-- safe to re-run.
+SET @idx_exists := (SELECT COUNT(*) FROM information_schema.statistics
+    WHERE table_schema = DATABASE() AND table_name = 'Registrations' AND index_name = 'IX_Registrations_EventId');
+SET @sql := IF(@idx_exists = 0, 'CREATE INDEX `IX_Registrations_EventId` ON `Registrations` (`EventId`)', 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @idx_exists := (SELECT COUNT(*) FROM information_schema.statistics
+    WHERE table_schema = DATABASE() AND table_name = 'Registrations' AND index_name = 'IX_Registrations_ParticipantId');
+SET @sql := IF(@idx_exists = 0, 'CREATE INDEX `IX_Registrations_ParticipantId` ON `Registrations` (`ParticipantId`)', 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @idx_exists := (SELECT COUNT(*) FROM information_schema.statistics
+    WHERE table_schema = DATABASE() AND table_name = 'Registrations' AND index_name = 'IX_Registrations_Status');
+SET @sql := IF(@idx_exists = 0, 'CREATE INDEX `IX_Registrations_Status` ON `Registrations` (`Status`)', 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

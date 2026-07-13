@@ -42,7 +42,7 @@ public class CancelRegistrationHandler : IRequestHandler<CancelRegistrationComma
 
         var currentTime = DateTime.UtcNow;
         if (currentTime >= (DateTime)registration.StartAt)
-            throw new BusinessException("Cannot cancel registration after event has started");
+            throw new BusinessRuleException("Cannot cancel registration after event has started");
 
         const string cancelSql = @"
             UPDATE `Registrations`
