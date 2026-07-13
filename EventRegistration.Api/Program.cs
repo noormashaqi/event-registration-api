@@ -7,30 +7,42 @@ using EventRegistration.Api.Features.Participants;
 using EventRegistration.Api.Middleware;
 using FluentValidation;
 using MediatR;
+using Serilog;
 
 Env.Load();
 
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
+
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseSerilog();
+
 var dbConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+
 if (!string.IsNullOrWhiteSpace(dbConnectionString))
 {
     builder.Configuration["ConnectionStrings:Default"] = dbConnectionString;
 }
 
 builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.CustomSchemaIds(type => type.FullName?.Replace("+", ".") ?? type.Name);
 });
 
 builder.Services.AddSingleton<IEventRegistrationDatabase, EventRegistrationDatabase>();
+
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssemblyContaining<CreateParticipantCommand>();
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
+
 builder.Services.AddValidatorsFromAssemblyContaining<CreateParticipantValidator>();
 
 builder.Services.AddCors(options =>
@@ -61,6 +73,7 @@ else
 app.UseCors("ReactApp");
 
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

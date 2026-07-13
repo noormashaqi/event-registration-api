@@ -26,15 +26,19 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
 
         var context = new ValidationContext<TRequest>(request);
 
-        var failures = (await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken))))
+        var failures = (await Task.WhenAll(
+                _validators.Select(v => v.ValidateAsync(context, cancellationToken))))
             .SelectMany(result => result.Errors)
             .Where(f => f != null)
             .ToList();
 
         if (failures.Count != 0)
         {
-            var errorMessages = failures.Select(f => $"{f.PropertyName}: {f.ErrorMessage}").ToList();
-            throw new ValidationException("Validation failed", errorMessages);
+            var errorMessages = failures
+                .Select(f => $"{f.PropertyName}: {f.ErrorMessage}")
+                .ToList();
+
+            throw new ValidationException(errorMessages);
         }
 
         return await next();

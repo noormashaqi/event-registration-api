@@ -26,12 +26,27 @@ public class CreateEvent
     {
         public Validator()
         {
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(150);
-            RuleFor(x => x.Description).MaximumLength(1000);
-            RuleFor(x => x.Location).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.Capacity).InclusiveBetween(1, 10000);
-            RuleFor(x => x.EndAt).GreaterThan(x => x.StartAt).WithMessage("EndAt must be later than StartAt.");
-            RuleFor(x => x.RegistrationDeadline).LessThanOrEqualTo(x => x.StartAt).WithMessage("RegistrationDeadline must not be later than StartAt.");
+            RuleFor(x => x.Name)
+                .NotEmpty()
+                .MaximumLength(150);
+
+            RuleFor(x => x.Description)
+                .MaximumLength(1000);
+
+            RuleFor(x => x.Location)
+                .NotEmpty()
+                .MaximumLength(200);
+
+            RuleFor(x => x.Capacity)
+                .InclusiveBetween(1, 10000);
+
+            RuleFor(x => x.EndAt)
+                .GreaterThan(x => x.StartAt)
+                .WithMessage("EndAt must be later than StartAt.");
+
+            RuleFor(x => x.RegistrationDeadline)
+                .LessThanOrEqualTo(x => x.StartAt)
+                .WithMessage("RegistrationDeadline must not be later than StartAt.");
         }
     }
 
@@ -39,26 +54,69 @@ public class CreateEvent
     {
         private readonly IEventRegistrationDatabase _db;
 
-        public Handler(IEventRegistrationDatabase db) => _db = db;
+        public Handler(IEventRegistrationDatabase db)
+        {
+            _db = db;
+        }
 
         public async Task<long> Handle(Command request, CancellationToken cancellationToken)
         {
             using var connection = _db.Open();
 
-            const string checkCategorySql = "SELECT IsActive FROM Categories WHERE Id = @CategoryId";
-            var categoryActive = await connection.QueryFirstOrDefaultAsync<bool?>(checkCategorySql, new { request.CategoryId });
+            const string checkCategorySql = 
+                "SELECT IsActive FROM Categories WHERE Id = @CategoryId";
+
+            var categoryActive = await connection.QueryFirstOrDefaultAsync<bool?>(
+                checkCategorySql,
+                new { request.CategoryId }
+            );
 
             if (categoryActive == null)
-                throw new NotFoundException($"Category with ID {request.CategoryId} does not exist.");
+            {
+                throw new NotFoundException(
+                    $"Category with ID {request.CategoryId} does not exist."
+                );
+            }
+
             if (!categoryActive.Value)
-                throw new ValidationException("Cannot link event to an inactive category.");
+            {
+                throw new ValidationException(
+                    new[] { "Cannot link event to an inactive category." }
+                );
+            }
 
             const string insertSql = @"
-                INSERT INTO Events (CategoryId, Name, Description, Location, StartAt, EndAt, RegistrationDeadline, Capacity, IsActive)
-                VALUES (@CategoryId, @Name, @Description, @Location, @StartAt, @EndAt, @RegistrationDeadline, @Capacity, @IsActive);
+                INSERT INTO Events 
+                (
+                    CategoryId, 
+                    Name, 
+                    Description, 
+                    Location, 
+                    StartAt, 
+                    EndAt, 
+                    RegistrationDeadline, 
+                    Capacity, 
+                    IsActive
+                )
+                VALUES 
+                (
+                    @CategoryId, 
+                    @Name, 
+                    @Description, 
+                    @Location, 
+                    @StartAt, 
+                    @EndAt, 
+                    @RegistrationDeadline, 
+                    @Capacity, 
+                    @IsActive
+                );
+
                 SELECT LAST_INSERT_ID();";
 
-            return await connection.ExecuteScalarAsync<long>(insertSql, request);
+            return await connection.ExecuteScalarAsync<long>(
+                insertSql,
+                request
+            );
         }
     }
 }
