@@ -3,6 +3,7 @@ using EventRegistration.Api.Exceptions;
 using EventRegistration.Api.Interfaces;
 using FluentValidation;
 using MediatR;
+using ValidationException = EventRegistration.Api.Exceptions.ValidationException;
 
 namespace EventRegistration.Api.Features.Events;
 
@@ -62,10 +63,14 @@ public class UpdateEvent
             if (categoryActive == null)
                 throw new NotFoundException($"Category with ID {request.CategoryId} does not exist.");
 
+            if (!categoryActive.Value)
+                throw new ValidationException(new[] { "Cannot link event to an inactive category." });
+
             const string updateSql = @"
-                UPDATE Events 
-                SET CategoryId = @CategoryId, Name = @Name, Description = @Description, Location = @Location, 
-                    StartAt = @StartAt, EndAt = @EndAt, RegistrationDeadline = @RegistrationDeadline, Capacity = @Capacity, IsActive = @IsActive
+                UPDATE Events
+                SET CategoryId = @CategoryId, Name = @Name, Description = @Description, Location = @Location,
+                    StartAt = @StartAt, EndAt = @EndAt, RegistrationDeadline = @RegistrationDeadline, Capacity = @Capacity, IsActive = @IsActive,
+                    UpdatedAt = UTC_TIMESTAMP()
                 WHERE Id = @Id";
 
             await connection.ExecuteAsync(updateSql, request);

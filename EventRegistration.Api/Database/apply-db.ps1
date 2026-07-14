@@ -79,9 +79,7 @@ Get-ChildItem (Join-Path $scriptDir "migrations") -Filter "*.sql" | Sort-Object 
 
 if (-not $SkipSeed) {
     Write-Host "`n=== Seed data ===" -ForegroundColor Yellow
-    Get-ChildItem (Join-Path $scriptDir "seed") -Filter "*.sql" | Sort-Object Name | ForEach-Object {
-        Invoke-SqlFile $_
-    }
+    Invoke-SqlFile (Get-Item (Join-Path $scriptDir "seed.sql"))
 }
 
 Write-Host "`nDone." -ForegroundColor Green

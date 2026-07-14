@@ -1,10 +1,16 @@
 using System.Text.Json;
+using EventRegistration.Api.Common;
 using EventRegistration.Api.Exceptions;
 
 namespace EventRegistration.Api.Middleware;
 
 public class ExceptionHandlingMiddleware
 {
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
 
@@ -53,14 +59,14 @@ public class ExceptionHandlingMiddleware
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";
 
-        var payload = new
+        var payload = new ApiErrorResponse
         {
-            success = false,
-            timestamp = DateTime.UtcNow,
-            message,
-            errors = errors ?? new List<string>()
+            Success = false,
+            Timestamp = DateTime.UtcNow,
+            Message = message,
+            Errors = errors ?? new List<string>()
         };
 
-        await context.Response.WriteAsync(JsonSerializer.Serialize(payload));
+        await context.Response.WriteAsync(JsonSerializer.Serialize(payload, SerializerOptions));
     }
 }

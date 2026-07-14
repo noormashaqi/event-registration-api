@@ -79,7 +79,7 @@ public class RegisterParticipantHandler : IRequestHandler<RegisterParticipantCom
             throw new BusinessRuleException("Event has already started");
 
         const string activeCountSql = @"
-            SELECT COUNT(*) 
+            SELECT COUNT(*)
             FROM `Registrations`
             WHERE EventId = @EventId AND Status = 1";
 
@@ -132,7 +132,7 @@ public class RegisterParticipantHandler : IRequestHandler<RegisterParticipantCom
             (EventId, ParticipantId, Status, Notes, RegisteredAt)
             VALUES
             (@EventId, @ParticipantId, 1, @Notes, UTC_TIMESTAMP());
-            
+
             SELECT LAST_INSERT_ID()";
 
         ulong insertedId = await connection.ExecuteScalarAsync<ulong>(insertSql, new
@@ -150,8 +150,8 @@ public class RegisterParticipantHandler : IRequestHandler<RegisterParticipantCom
     private async Task<RegistrationResponse> GetRegistrationDetails(IDbConnection connection, long registrationId)
     {
         const string selectSql = @"
-            SELECT 
-                r.Id, r.EventId, e.Name AS EventName, r.ParticipantId, p.FullName AS ParticipantName, 
+            SELECT
+                r.Id, r.EventId, e.Name AS EventName, r.ParticipantId, p.FullName AS ParticipantName,
                 p.Email AS ParticipantEmail, p.Phone AS ParticipantPhone, r.Status, r.Notes, r.RegisteredAt, r.CancelledAt
             FROM `Registrations` r
             JOIN `Events` e ON r.EventId = e.Id

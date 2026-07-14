@@ -24,8 +24,8 @@ public class GetRegistrationByIdQueryHandler : IRequestHandler<GetRegistrationBy
         using var connection = _database.Open();
 
         const string sql = @"
-            SELECT 
-                r.Id, r.EventId, e.Name AS EventName, r.ParticipantId, p.FullName AS ParticipantName, 
+            SELECT
+                r.Id, r.EventId, e.Name AS EventName, r.ParticipantId, p.FullName AS ParticipantName,
                 p.Email AS ParticipantEmail, p.Phone AS ParticipantPhone, r.Status, r.Notes, r.RegisteredAt, r.CancelledAt
             FROM `Registrations` r
             JOIN `Events` e ON r.EventId = e.Id
@@ -39,14 +39,14 @@ public class GetRegistrationByIdQueryHandler : IRequestHandler<GetRegistrationBy
 
         return new RegistrationResponse
         {
-            Id = result.Id,
-            EventId = result.EventId,
+            Id = Convert.ToInt64(result.Id),
+            EventId = Convert.ToInt64(result.EventId),
             EventName = result.EventName,
-            ParticipantId = result.ParticipantId,
+            ParticipantId = Convert.ToInt64(result.ParticipantId),
             ParticipantName = result.ParticipantName,
             ParticipantEmail = result.ParticipantEmail,
             ParticipantPhone = result.ParticipantPhone,
-            Status = result.Status,
+            Status = Convert.ToInt32(result.Status),
             Notes = result.Notes,
             RegisteredAt = result.RegisteredAt,
             CancelledAt = result.CancelledAt

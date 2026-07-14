@@ -1,4 +1,5 @@
 using Dapper;
+using EventRegistration.Api.Exceptions;
 using EventRegistration.Api.Interfaces;
 using MediatR;
 
@@ -22,6 +23,7 @@ public class GetEvents
         public int TotalCount { get; set; }
         public int Page { get; set; }
         public int PageSize { get; set; }
+        public int TotalPages { get; set; }
         public IEnumerable<T> Items { get; set; } = Enumerable.Empty<T>();
     }
 
@@ -34,6 +36,10 @@ public class GetEvents
         public string Location { get; set; } = string.Empty;
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }
+        public DateTime RegistrationDeadline { get; set; }
+        public int Capacity { get; set; }
+        public int ActiveRegistrationCount { get; set; }
+        public int AvailableSeats { get; set; }
         public bool IsActive { get; set; }
         public string EventStatus
         {
@@ -55,6 +61,9 @@ public class GetEvents
 
         public async Task<PaginatedResult<ResultItem>> Handle(Query request, CancellationToken cancellationToken)
         {
+            if (request.Page < 1 || request.PageSize < 1 || request.PageSize > 100)
+                throw new ValidationException(new[] { "Invalid pagination parameters" });
+
             using var connection = _db.Open();
 
             var sqlBuilder = new System.Text.StringBuilder();
@@ -93,7 +102,9 @@ public class GetEvents
             int totalCount = await connection.ExecuteScalarAsync<int>(countBuilder.ToString(), parameters);
 
             sqlBuilder.Append($@"
-                SELECT e.Id, e.Name, e.CategoryId, c.Name AS CategoryName, e.Location, e.StartAt, e.EndAt, e.IsActive
+                SELECT e.Id, e.Name, e.CategoryId, c.Name AS CategoryName, e.Location, e.StartAt, e.EndAt, e.RegistrationDeadline, e.Capacity, e.IsActive,
+                       (SELECT COUNT(*) FROM Registrations r WHERE r.EventId = e.Id AND r.Status = 1) AS ActiveRegistrationCount,
+                       e.Capacity - (SELECT COUNT(*) FROM Registrations r WHERE r.EventId = e.Id AND r.Status = 1) AS AvailableSeats
                 FROM Events e
                 INNER JOIN Categories c ON e.CategoryId = c.Id
                 {baseWhere}
@@ -105,11 +116,14 @@ public class GetEvents
 
             var items = await connection.QueryAsync<ResultItem>(sqlBuilder.ToString(), parameters);
 
+            int totalPages = totalCount == 0 ? 0 : (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
             return new PaginatedResult<ResultItem>
             {
                 TotalCount = totalCount,
                 Page = request.Page,
                 PageSize = request.PageSize,
+                TotalPages = totalPages,
                 Items = items
             };
         }

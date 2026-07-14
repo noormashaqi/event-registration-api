@@ -35,7 +35,7 @@ public class CancelRegistrationHandler : IRequestHandler<CancelRegistrationComma
         if (registration == null)
             throw new NotFoundException($"Registration with ID {request.RegistrationId} not found");
 
-        if ((int)registration.Status == 2)
+        if (Convert.ToInt32(registration.Status) == 2)
         {
             return await GetRegistrationDetails(connection, request.RegistrationId);
         }
@@ -46,7 +46,7 @@ public class CancelRegistrationHandler : IRequestHandler<CancelRegistrationComma
 
         const string cancelSql = @"
             UPDATE `Registrations`
-            SET 
+            SET
                 Status = 2,
                 CancelledAt = UTC_TIMESTAMP()
             WHERE Id = @RegistrationId";
@@ -59,8 +59,8 @@ public class CancelRegistrationHandler : IRequestHandler<CancelRegistrationComma
     private async Task<RegistrationResponse> GetRegistrationDetails(IDbConnection connection, long registrationId)
     {
         const string selectSql = @"
-            SELECT 
-                r.Id, r.EventId, e.Name AS EventName, r.ParticipantId, p.FullName AS ParticipantName, 
+            SELECT
+                r.Id, r.EventId, e.Name AS EventName, r.ParticipantId, p.FullName AS ParticipantName,
                 p.Email AS ParticipantEmail, p.Phone AS ParticipantPhone, r.Status, r.Notes, r.RegisteredAt, r.CancelledAt
             FROM `Registrations` r
             JOIN `Events` e ON r.EventId = e.Id
@@ -71,14 +71,14 @@ public class CancelRegistrationHandler : IRequestHandler<CancelRegistrationComma
 
         return new RegistrationResponse
         {
-            Id = result.Id,
-            EventId = result.EventId,
+            Id = Convert.ToInt64(result.Id),
+            EventId = Convert.ToInt64(result.EventId),
             EventName = result.EventName,
-            ParticipantId = result.ParticipantId,
+            ParticipantId = Convert.ToInt64(result.ParticipantId),
             ParticipantName = result.ParticipantName,
             ParticipantEmail = result.ParticipantEmail,
             ParticipantPhone = result.ParticipantPhone,
-            Status = result.Status,
+            Status = Convert.ToInt32(result.Status),
             Notes = result.Notes,
             RegisteredAt = result.RegisteredAt,
             CancelledAt = result.CancelledAt

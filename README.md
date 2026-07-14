@@ -20,7 +20,7 @@ EventRegistration.Api/
   Features/              MediatR commands/queries, grouped by resource
   Database/
     migrations/          Numbered, ordered schema migrations (001-004)
-    seed/                 Idempotent sample/demo data, one file per feature (01-04)
+    seed.sql              Idempotent sample/demo data (categories, participants, events, registrations)
   Exceptions/             Shared exception types mapped to HTTP status codes
   Middleware/             Global exception-handling middleware
   Common/                 Shared API response models
@@ -50,7 +50,15 @@ EventRegistration.Api/
 
    `.env` is git-ignored and never committed — do not put real credentials in `appsettings.json` or `appsettings.Development.json`.
 
-2. Create the database, then apply the migrations in order against it:
+2. Create the database, apply migrations, and load sample seed data. Either run the PowerShell helper (reads connection details from `.env` automatically, so nothing is hardcoded):
+
+   ```powershell
+   cd EventRegistration.Api/Database
+   ./apply-db.ps1 -CreateDatabase      # migrations + seed
+   ./apply-db.ps1 -CreateDatabase -SkipSeed   # migrations only, no sample data
+   ```
+
+   ...or run each file by hand, in order (migrations first, since events reference categories and registrations reference both events and participants):
 
    ```bash
    mysql -u root -p -e "CREATE DATABASE EventRegistration;"
@@ -58,20 +66,13 @@ EventRegistration.Api/
    mysql -u root -p EventRegistration < EventRegistration.Api/Database/migrations/002_create_events.sql
    mysql -u root -p EventRegistration < EventRegistration.Api/Database/migrations/003_create_participants.sql
    mysql -u root -p EventRegistration < EventRegistration.Api/Database/migrations/004_create_registrations.sql
+
+   mysql -u root -p EventRegistration < EventRegistration.Api/Database/seed.sql
    ```
 
-3. (Optional) Load sample data for local development. Seed files are split one per feature and must be run in order, since events reference categories and registrations reference both events and participants:
+   Every migration and the seed file are idempotent and safe to re-run.
 
-   ```bash
-   mysql -u root -p EventRegistration < EventRegistration.Api/Database/seed/01_categories.sql
-   mysql -u root -p EventRegistration < EventRegistration.Api/Database/seed/02_participants.sql
-   mysql -u root -p EventRegistration < EventRegistration.Api/Database/seed/03_events.sql
-   mysql -u root -p EventRegistration < EventRegistration.Api/Database/seed/04_registrations.sql
-   ```
-
-   Each file is idempotent and safe to re-run. You can also re-run a single feature's file on its own (e.g. add more categories) without touching the others.
-
-4. Restore and run:
+3. Restore and run:
 
    ```bash
    cd EventRegistration.Api

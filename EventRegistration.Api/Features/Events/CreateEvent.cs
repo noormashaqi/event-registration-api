@@ -85,6 +85,10 @@ public class CreateEvent
                 );
             }
 
+            request.Name = request.Name.Trim();
+            request.Location = request.Location.Trim();
+            request.Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim();
+
             const string insertSql = @"
                 INSERT INTO Events 
                 (
